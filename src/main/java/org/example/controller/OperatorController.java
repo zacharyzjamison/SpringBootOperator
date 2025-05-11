@@ -11,19 +11,21 @@ import org.example.crd.Operator;
 import org.example.crd.OperatorStatus;
 import org.example.dependent.ConfigMapDependentResource;
 import org.example.dependent.GatewayDependentResource;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import java.time.Instant;
 
 @Slf4j
 @Component
-@ControllerConfiguration(
-        dependents = {
-                @Dependent(type= ConfigMapDependentResource.class),
-                @Dependent(type = GatewayDependentResource.class)
-        }
-)
+@ControllerConfiguration
 public class OperatorController implements Reconciler<Operator> {
+
+    @Autowired
+    private GatewayDependentResource gatewayDependentResource;
+
+    @Autowired
+    private ConfigMapDependentResource configMapDependentResource;
 
     @Override
     public UpdateControl<Operator> reconcile(Operator resource, Context<Operator> context) {
@@ -37,6 +39,10 @@ public class OperatorController implements Reconciler<Operator> {
 
         var timestamp = Instant.now().toString();
         status.setCreatedAt(timestamp);
+
+        gatewayDependentResource.reconcile(resource, context);
+
+        configMapDependentResource.reconcile(resource, context);
 
         return UpdateControl.patchStatus(resource);
     }

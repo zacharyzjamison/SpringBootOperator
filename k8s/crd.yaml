@@ -3,5 +3,5 @@ kind: Operator
 metadata:
   name: operator
 spec:
-  env: dev
+  env: prod
   percentage: "50.0"
