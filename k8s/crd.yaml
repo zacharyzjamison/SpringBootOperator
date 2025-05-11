@@ -1,0 +1,7 @@
+apiVersion: org.example/v1
+kind: Operator
+metadata:
+  name: operator
+spec:
+  env: dev
+  percentage: "50.0"
