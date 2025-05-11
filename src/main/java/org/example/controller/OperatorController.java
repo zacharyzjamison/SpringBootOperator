@@ -1,9 +1,7 @@
 package org.example.controller;
 
-import io.javaoperatorsdk.operator.api.reconciler.Context;
-import io.javaoperatorsdk.operator.api.reconciler.ControllerConfiguration;
-import io.javaoperatorsdk.operator.api.reconciler.Reconciler;
-import io.javaoperatorsdk.operator.api.reconciler.UpdateControl;
+import io.fabric8.kubernetes.client.KubernetesClient;
+import io.javaoperatorsdk.operator.api.reconciler.*;
 import io.javaoperatorsdk.operator.api.reconciler.dependent.Dependent;
 import lombok.extern.slf4j.Slf4j;
 import lombok.var;
@@ -45,5 +43,18 @@ public class OperatorController implements Reconciler<Operator> {
         configMapDependentResource.reconcile(resource, context);
 
         return UpdateControl.patchStatus(resource);
+    }
+
+
+    public DeleteControl cleanup(Operator resource, Context<Operator> context) {
+        log.info("Cleaning up resources for: {}", resource.getMetadata().getName());
+
+        // Get the Kubernetes client from the context
+        KubernetesClient client = context.getClient();
+
+        // Delete Gateway resource
+        gatewayDependentResource.delete(client);
+
+        return DeleteControl.defaultDelete();
     }
 }
